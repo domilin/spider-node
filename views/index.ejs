@@ -1,0 +1,135 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <script src="http://common.8864.com/web/js/jquery/jquery-1.12.0.min.js"></script>
+    <title>search</title>
+    <style>
+
+        body {
+            font-family: "Microsoft YaHei UI Light";
+            font-size: 12px;
+        }
+
+        input {
+            margin-bottom: 10px;
+            padding: 0 5px;
+            height: 24px;
+            width: 590px;
+        }
+
+        textarea {
+            margin-bottom: 10px;
+            padding: 0 5px;
+            height: 200px;
+            width: 590px;
+        }
+
+        #conutList{
+            margin-bottom: 20px;
+        }
+    </style>
+    <script>
+        $(function () {
+            var $resultList = $('#resultList'),
+                $conutList = $('#conutList'),
+                $keywords = $('#keywords'),
+                $website = $('#website'),
+                $search = $('#search'),
+                $stop = $('#stop'),
+                $del = $('#del'),
+                $count = $('#count');
+
+
+            $count.click(function () {
+                var str = '',
+                    arr = [];
+                $resultList.find('li').each(function (i, d) {
+                    var url = $(this).children('a').text().split('/')[2];
+                    console.log(url)
+                    if (arr.indexOf(url) === -1) {
+                        arr.push(url);
+                        str += '<li><a>' + $(this).children('a').text() + ' </a><span>' + $(this).children('span').text() + '</span></li>';
+                    }
+                });
+
+                $conutList.html(str);
+            });
+
+            var timer;
+            $stop.click(function () {
+                $.ajax({
+                    type: 'GET',
+                    url: '/stop',
+                    success: function (data) {
+                        if (data.success == true) {
+                            alert('成功停止！')
+                        }
+                    }
+                });
+                clearInterval(timer);
+            });
+
+            $del.click(function () {
+                $.ajax({
+                    type: 'GET',
+                    url: '/del',
+                    success: function (data) {
+                        if (data.success == true) {
+                            alert('成功清除！')
+                        }
+                    }
+                });
+                clearInterval(timer);
+            });
+
+            $search.click(function () {
+                $.ajax({
+                    type: 'GET',
+                    dataType: 'json',
+                    url: '/search',
+                    data: {
+                        keywords: $.trim($keywords.val()),
+                        website: $website.val()
+                    },
+                    success: function (data) {
+                        console.log(data)
+                    }
+                });
+                timer = setInterval(function () {
+                    renderList();
+                }, 1000)
+            });
+
+
+            function renderList() {
+                $.ajax({
+                    type: 'GET',
+                    url: '/list',
+                    success: function (data) {
+                        var str = '';
+                        if (data.success === true) {
+                            $.each(data.data, function (i, d) {
+                                str += '<li><a>' + d.url + ' </a><span>' + (d.exist ? 'YES' : 'NO') + '</span></li>';
+                            });
+                            $resultList.html(str);
+                        }
+                    }
+                })
+            }
+        })
+    </script>
+</head>
+<body>
+<input id="keywords" type="text" placeholder="请输入关键词">
+<br/>
+<textarea id="website" placeholder="请输入网址以分号隔开"></textarea>
+<br/>
+<button id="search">搜索</button>
+<button id="stop">暂停</button>
+<button id="del">清空服务端数据</button>
+<button id="count">统计</button>
+<ul id="conutList" class="result-list"></ul>
+<ul id="resultList" class="result-list"></ul>
+</body>
+</html>
