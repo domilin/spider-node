@@ -37,7 +37,6 @@
                 $website = $('#website'),
                 $search = $('#search'),
                 $stop = $('#stop'),
-                $del = $('#del'),
                 $count = $('#count');
 
 
@@ -63,20 +62,7 @@
                     url: '/stop',
                     success: function (data) {
                         if (data.success == true) {
-                            alert('成功停止！')
-                        }
-                    }
-                });
-                clearInterval(timer);
-            });
-
-            $del.click(function () {
-                $.ajax({
-                    type: 'GET',
-                    url: '/del',
-                    success: function (data) {
-                        if (data.success == true) {
-                            alert('成功清除！')
+                            alert('停止并清空中，确定后请等待！')
                         }
                     }
                 });
@@ -107,8 +93,13 @@
                     type: 'GET',
                     url: '/list',
                     success: function (data) {
+                        console.log(data)
                         var str = '';
                         if (data.success === true) {
+                            if(data.stop === true){
+                                alert('成功停止!');
+                                clearInterval(timer);
+                            }
                             $.each(data.data, function (i, d) {
                                 str += '<li><a>' + d.url + ' </a><span>' + (d.exist ? 'YES' : 'NO') + '</span></li>';
                             });
@@ -126,8 +117,7 @@
 <textarea id="website" placeholder="请输入网址以分号隔开"></textarea>
 <br/>
 <button id="search">搜索</button>
-<button id="stop">暂停</button>
-<button id="del">清空服务端数据</button>
+<button id="stop">停止爬虫并清空服务端数据</button>
 <button id="count">统计</button>
 <ul id="conutList" class="result-list"></ul>
 <ul id="resultList" class="result-list"></ul>

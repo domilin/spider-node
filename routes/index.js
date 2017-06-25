@@ -14,18 +14,13 @@ let listArr = [],
 router.get('/list', function (req, res) {
     res.json({
         success: true,
+        stop: stop,
         data: listArr
     });
 });
 
 router.get('/stop', function (req, res) {
     stop = true;
-    res.json({
-        success: true
-    })
-});
-
-router.get('/del', function (req, res) {
     listArr = [];
     urlTemp = [];
     res.json({
@@ -33,8 +28,12 @@ router.get('/del', function (req, res) {
     })
 });
 
+let timer;
 router.get('/search', function (req, res, next) {
     stop = false;
+    listArr = [];
+    urlTemp = [];
+
     let keywords = req.query.keywords,
         website = req.query.website;
 
@@ -50,6 +49,11 @@ router.get('/search', function (req, res, next) {
         urlTemp[i].push(urlArr[i]);
         checkKeywords(keywords, urlArr[i], urlTemp[i], ip);
     }
+
+    res.send({
+        success: true,
+        msg: '搜索中'
+    });
 
     function checkKeywords(keywords, url, arr, ip) {
         if (stop === false) {
